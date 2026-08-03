@@ -129,3 +129,19 @@ Design decisions live in [`PRODUCT.md`](PRODUCT.md) and [`DESIGN.md`](DESIGN.md)
 MIT. The font is [Archivo](https://github.com/Omnibus-Type/Archivo) by Omnibus-Type, under the SIL
 Open Font License — vendored into `src/ui/fonts/` rather than loaded from a CDN, because a CDN font
 is a request to somebody else's server.
+
+## Manage it from Claude
+
+The repo ships an agent skill in [`skills/today/`](skills/today) that reads and writes a list from the
+terminal — "what is on today", "add X", "mark X done", "what did I not finish".
+
+The app keeps its data in the browser, which no CLI can reach, so the skill works on the export file:
+**Settings → Export JSON**, edit, **Settings → Import JSON**.
+
+```bash
+node skills/today/scripts/today.mjs list
+node skills/today/scripts/today.mjs add "Call the bank #admin !1 ~20m"
+node skills/today/scripts/today.mjs carried
+```
+
+Install it for Claude Code by copying `skills/today` into `~/.claude/skills/`.

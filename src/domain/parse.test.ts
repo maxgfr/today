@@ -38,6 +38,14 @@ describe('parseInput', () => {
 
   it('treats a bare number as minutes', () => {
     expect(parseInput('Standup ~15').estimateMin).toBe(15)
+    expect(parseInput('Long thing ~130').estimateMin).toBe(130)
+  })
+
+  it('reads back the form it prints', () => {
+    // The UI renders 90 minutes as "1h30", so that is what people type.
+    expect(parseInput('Deep work ~1h30').estimateMin).toBe(90)
+    expect(parseInput('Deep work ~1h30').title).toBe('Deep work')
+    expect(parseInput('Deep work ~2h05').estimateMin).toBe(125)
   })
 
   it('leaves a mid-word hash alone', () => {

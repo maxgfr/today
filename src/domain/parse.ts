@@ -21,7 +21,15 @@ export type ParsedInput = {
 
 const TAG = /(?:^|\s)#([\p{L}\p{N}][\p{L}\p{N}_-]*)/gu
 const PRIORITY = /(?:^|\s)!([1-3])(?=\s|$)/u
-const ESTIMATE = /(?:^|\s)~(\d+(?:[.,]\d+)?)(m|min|h|hr)?(?=\s|$)/iu
+
+/**
+ * The trailing `(\d{1,2})` is what makes `~1h30` work.
+ *
+ * Without it the app could *print* an estimate it could not read back: durations
+ * render as `1h30`, so that is the form people copy, and typing it produced a
+ * task called "Thing ~1h30" with no estimate at all.
+ */
+const ESTIMATE = /(?:^|\s)~(\d+(?:[.,]\d+)?)(m|min|h|hr)?(\d{1,2})?(?=\s|$)/iu
 
 export function parseInput(raw: string): ParsedInput {
   let rest = raw
@@ -42,7 +50,11 @@ export function parseInput(raw: string): ParsedInput {
   if (estimateMatch) {
     const amount = Number(estimateMatch[1]!.replace(',', '.'))
     const unit = estimateMatch[2]?.toLowerCase()
-    estimateMin = Math.round(unit === 'h' || unit === 'hr' ? amount * 60 : amount)
+    const isHours = unit === 'h' || unit === 'hr'
+    // Trailing minutes only mean anything after an hours unit: `1h30` is 90,
+    // while a bare `~130` is 130 minutes and its digits are all one number.
+    const trailing = isHours ? Number(estimateMatch[3] ?? 0) : 0
+    estimateMin = Math.round(isHours ? amount * 60 + trailing : amount)
     rest = rest.replace(ESTIMATE, ' ')
   }
 

@@ -64,6 +64,10 @@ const state = (extraTasks = []) => ({
         tags: ['home'],
       }),
       task('e', 'Reply to Sam about the weekend', day(0), 5120, { priority: 2 }),
+      task('e2', 'Move the car', day(0), 6144, {
+        status: 'done',
+        completedAt: new Date().toISOString(),
+      }),
       task('f', 'Pick up the parcel', day(1), 1024, { tags: ['errands'] }),
       task('g', 'Plan the trip', day(2), 1024, { priority: 2, estimateMin: 45 }),
       task('h', 'Clear the inbox', day(-1), 1024, {

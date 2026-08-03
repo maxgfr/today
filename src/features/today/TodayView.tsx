@@ -20,8 +20,13 @@ import { dayProgress, matchesFilters, tasksForDay, type Filters } from '../../do
 import { DayHeader } from './DayHeader'
 import { TaskRow } from './TaskRow'
 import { Capture, type CaptureHandle } from './Capture'
+import { FilterBar } from './FilterBar'
 import { CAPTURE_HINT_ID } from './hint'
 import { DayCleared, EmptyDay, FirstRun } from './EmptyStates'
+import { DoneDrawer } from './DoneDrawer'
+
+/** Matches the `flip` keyframe in `ui/tokens.css`. */
+const FLIP_MS = 420
 
 /**
  * The board. This is the app; everything else is an overlay over it.
@@ -34,11 +39,13 @@ export function TodayView({
   day,
   today,
   filters,
+  onFiltersChange,
   captureRef,
 }: {
   day: string
   today: string
   filters: Filters
+  onFiltersChange: (filters: Filters) => void
   captureRef: React.RefObject<CaptureHandle | null>
 }) {
   const state = useAppState()
@@ -53,16 +60,63 @@ export function TodayView({
   )
   const progress = useMemo(() => dayProgress(state, day), [state, day])
 
-  // Numbering runs over the open rows only, so completing one closes the gap
-  // instead of leaving a hole where a task used to be.
-  const positions = useMemo(() => {
-    const map = new Map<string, number>()
-    let next = 1
-    for (const task of visible) {
-      if (task.status !== 'done') map.set(task.id, next++)
-    }
-    return map
-  }, [visible])
+  // Completing a task takes it out of the list and into the drawer: the list is
+  // what is left to do, and a day whose rows are all still there, struck
+  // through, does not read as finished.
+  const open = useMemo(() => visible.filter((task) => task.status !== 'done'), [visible])
+  const done = useMemo(
+    () =>
+      visible
+        .filter((task) => task.status === 'done')
+        // Most recently finished first — that is the one you might undo.
+        .sort((a, b) => (b.completedAt ?? '').localeCompare(a.completedAt ?? '')),
+    [visible],
+  )
+
+  /**
+   * A completed row lingers in the list for exactly as long as the slat takes
+   * to turn over, then joins the drawer.
+   *
+   * Without this the flip — the one authored moment in the app — plays on an
+   * element that unmounts the same frame, so nobody ever sees it and completing
+   * a task reads as the row vanishing. Under `prefers-reduced-motion` there is
+   * no flip to wait for, and the delay would just feel like lag.
+   */
+  const [lingering, setLingering] = useState<ReadonlySet<string>>(new Set())
+  const previouslyOpen = useRef<Set<string>>(new Set())
+
+  useEffect(() => {
+    const openIds = new Set(open.map((task) => task.id))
+    const justCompleted = done
+      .filter((task) => previouslyOpen.current.has(task.id))
+      .map((task) => task.id)
+
+    previouslyOpen.current = openIds
+    if (justCompleted.length === 0) return
+
+    const linger = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : FLIP_MS
+    setLingering((current) => new Set([...current, ...justCompleted]))
+
+    const timer = setTimeout(() => {
+      setLingering((current) => {
+        const next = new Set(current)
+        for (const id of justCompleted) next.delete(id)
+        return next
+      })
+    }, linger)
+
+    return () => clearTimeout(timer)
+  }, [open, done])
+
+  const listed = useMemo(
+    () =>
+      [...open, ...done.filter((task) => lingering.has(task.id))].sort((a, b) => a.order - b.order),
+    [open, done, lingering],
+  )
+
+  const drawered = useMemo(() => done.filter((task) => !lingering.has(task.id)), [done, lingering])
+
+  const positions = useMemo(() => new Map(open.map((task, index) => [task.id, index + 1])), [open])
 
   const sensors = useSensors(
     // A few pixels of slop so a click on a row never registers as a drag.
@@ -74,6 +128,8 @@ export function TodayView({
     setDragging(null)
     if (!over || active.id === over.id) return
 
+    // The index has to be taken against the whole day, not the open subset:
+    // `moveTask` positions against every task filed on that date.
     const toIndex = tasks.findIndex((task) => task.id === over.id)
     if (toIndex >= 0) {
       dispatch({ type: 'moveTask', id: String(active.id), toDay: day, toIndex })
@@ -92,6 +148,10 @@ export function TodayView({
     <section aria-label={`Tasks for ${day}`}>
       <DayHeader day={day} progress={progress} />
 
+      {/* Filters belong under the date, not above it: they act on the board, and
+          putting chrome above the day would put chrome above the subject. */}
+      <FilterBar filters={filters} onChange={onFiltersChange} taskCount={tasks.length} />
+
       <div className="border-y-2 border-rule-strong">
         {/* Capture opens the board: on a screen about one day, the first thing
             you meet is the way to say what the day is. */}
@@ -107,7 +167,7 @@ export function TodayView({
           </p>
         )}
 
-        {!progress.complete && visible.length > 0 && (
+        {listed.length > 0 && (
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
@@ -116,11 +176,11 @@ export function TodayView({
             onDragEnd={onDragEnd}
           >
             <SortableContext
-              items={visible.map((task) => task.id)}
+              items={listed.map((task) => task.id)}
               strategy={verticalListSortingStrategy}
             >
               <ul>
-                {visible.map((task) => (
+                {listed.map((task) => (
                   <TaskRow
                     key={task.id}
                     task={task}
@@ -145,6 +205,8 @@ export function TodayView({
             </DragOverlay>
           </DndContext>
         )}
+
+        <DoneDrawer tasks={drawered} today={today} complete={progress.complete} />
       </div>
 
       {/* The syntax lives at the foot of the board and only in the accessibility

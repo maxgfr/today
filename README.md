@@ -46,6 +46,9 @@ list. A task belongs to a day or it does not exist.
 - **Repeats.** Daily, chosen weekdays, or every N days/weeks. Instances appear as days are opened —
   switching one on today never invents a month of tasks you never saw.
 - **Week.** Seven days side by side. Drag anything onto another day.
+- **Finished work stays reachable.** Completing a task takes it out of the list — the list is what is
+  left to do — and into a **Done** drawer for that day. From there you can put it back, or delete it
+  for good.
 - **Undo and redo** on everything, including triage and drag.
 - **Keyboard first.** `⌘K` for commands and search, `?` for the full map.
 - **Stats.** Weekly completion, streak, lifetime totals.

@@ -83,7 +83,11 @@ rather than an hour and a half.
   drops beneath the title instead of competing for width — truncating a task to "F.." to fit a tag
   is never the right trade.
 - Row numbers count **open rows only**, so completing one closes the gap rather than leaving a
-  hole that reads like a missing task. A done row shows `—`: it has left the board.
+  hole that reads like a missing task.
+- A completed row **leaves the list** and joins the `Done` drawer at the foot of the board, which
+  opens itself once the day is clear. It lingers in the list for exactly the 420ms of the flip
+  first — otherwise the app's one authored moment plays on an element that unmounts the same frame,
+  and completing something reads as the row vanishing.
 
 ## Motion
 

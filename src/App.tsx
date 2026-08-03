@@ -6,11 +6,10 @@ import { useRoute, navigate } from './app/router'
 import { useThemeEffect } from './app/theme'
 import { useShortcuts } from './app/shortcuts'
 import { needsTriage } from './domain/reducer'
-import { tasksForDay, noFilters, type Filters } from './domain/selectors'
+import { noFilters, type Filters } from './domain/selectors'
 import { addDays } from './lib/date'
 import { requestPersistence } from './lib/idb'
 import { TodayView } from './features/today/TodayView'
-import { FilterBar } from './features/today/FilterBar'
 import type { CaptureHandle } from './features/today/Capture'
 import { TriageTray } from './features/triage/TriageTray'
 import { WeekView } from './features/week/WeekView'
@@ -186,7 +185,6 @@ function Board() {
   if (route.name === 'settings') return <SettingsView today={today} />
 
   const showTriage = day === today && needsTriage(state, today)
-  const dayTaskCount = tasksForDay(state, day).length
 
   return (
     // `my-auto` rather than `justify-center`: a short day sits in the optical
@@ -197,9 +195,13 @@ function Board() {
       <div className="mx-auto my-auto w-full max-w-3xl px-5 py-10 sm:px-8 sm:py-14">
         {showTriage && <TriageTray today={today} />}
 
-        <FilterBar filters={filters} onChange={setFilters} taskCount={dayTaskCount} />
-
-        <TodayView day={day} today={today} filters={filters} captureRef={capture} />
+        <TodayView
+          day={day}
+          today={today}
+          filters={filters}
+          onFiltersChange={setFilters}
+          captureRef={capture}
+        />
 
         {/* Navigation lives under the board, not over it: on this screen the day
           is the subject and everything here is a way to leave it. */}

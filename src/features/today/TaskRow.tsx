@@ -159,31 +159,44 @@ export function TaskRow({
             </button>
           )}
 
-          {!editing && <TaskMeta task={task} today={today} />}
-        </div>
+          {/* Metadata and the row's controls travel together. On a phone that
+              whole group drops to a second line and hugs the right edge, so the
+              title keeps the full width; on desktop the same group is simply
+              the right-hand end of a single row. One markup, two shapes, and no
+              duplicated tab stops.
 
-        <div className="flex shrink-0 items-center">
-          <IconButton
-            icon={open ? 'minus' : 'note'}
-            size={15}
-            label={open ? `Hide details of ${task.title}` : `Show details of ${task.title}`}
-            aria-expanded={open}
-            onClick={() => setOpen((value) => !value)}
-            className={
-              open || task.subtasks.length > 0 || task.notes !== ''
-                ? ''
-                : 'opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100'
-            }
-          />
-          <button
-            type="button"
-            {...attributes}
-            {...listeners}
-            aria-label={`Reorder ${task.title}`}
-            className="cursor-grab p-2 text-rule opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 active:cursor-grabbing"
-          >
-            <Icon name="grip" size={16} />
-          </button>
+              Reveal-on-hover is a desktop affordance and nothing else: a touch
+              device never hovers, so gating the controls on it would leave a
+              phone with no way to reorder a day at all. */}
+          {!editing && (
+            <div className="flex shrink-0 items-center gap-2.5">
+              <TaskMeta task={task} today={today} />
+
+              <div className="ml-auto flex items-center">
+                <IconButton
+                  icon={open ? 'minus' : 'note'}
+                  size={15}
+                  label={open ? `Hide details of ${task.title}` : `Show details of ${task.title}`}
+                  aria-expanded={open}
+                  onClick={() => setOpen((value) => !value)}
+                  className={
+                    open || task.subtasks.length > 0 || task.notes !== ''
+                      ? ''
+                      : 'sm:opacity-0 sm:transition-opacity sm:group-hover:opacity-100 sm:focus-visible:opacity-100'
+                  }
+                />
+                <button
+                  type="button"
+                  {...attributes}
+                  {...listeners}
+                  aria-label={`Reorder ${task.title}`}
+                  className="flex size-11 cursor-grab touch-none items-center justify-center text-ink-muted active:cursor-grabbing sm:size-9 sm:text-rule sm:opacity-0 sm:transition-opacity sm:group-hover:opacity-100 sm:focus-visible:opacity-100"
+                >
+                  <Icon name="grip" size={16} />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

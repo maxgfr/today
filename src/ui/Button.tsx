@@ -52,6 +52,10 @@ type IconButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   size?: number
 }
 
+/**
+ * `size-11` is 44px, the smallest target a finger hits reliably. Desktop drops
+ * to 36px, where a cursor is precise and the extra padding only costs density.
+ */
 export function IconButton({ icon, label, size = 18, className = '', ...rest }: IconButtonProps) {
   return (
     <button
@@ -59,8 +63,8 @@ export function IconButton({ icon, label, size = 18, className = '', ...rest }: 
       aria-label={label}
       title={label}
       className={
-        'inline-flex items-center justify-center p-2 text-ink-muted transition-colors ' +
-        'duration-150 hover:bg-sunken hover:text-ink disabled:opacity-30 ' +
+        'inline-flex size-11 items-center justify-center text-ink-muted transition-colors ' +
+        'duration-150 hover:bg-sunken hover:text-ink disabled:opacity-30 sm:size-9 ' +
         `disabled:hover:bg-transparent disabled:hover:text-ink-muted ${className}`
       }
       {...rest}

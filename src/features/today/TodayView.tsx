@@ -20,6 +20,7 @@ import { dayProgress, matchesFilters, tasksForDay, type Filters } from '../../do
 import { DayHeader } from './DayHeader'
 import { TaskRow } from './TaskRow'
 import { Capture, type CaptureHandle } from './Capture'
+import { CAPTURE_HINT_ID } from './hint'
 import { DayCleared, EmptyDay, FirstRun } from './EmptyStates'
 
 /**
@@ -91,7 +92,11 @@ export function TodayView({
     <section aria-label={`Tasks for ${day}`}>
       <DayHeader day={day} progress={progress} />
 
-      <div className="border-t-2 border-rule-strong">
+      <div className="border-y-2 border-rule-strong">
+        {/* Capture opens the board: on a screen about one day, the first thing
+            you meet is the way to say what the day is. */}
+        <Capture day={day} ref={captureRef} />
+
         {progress.complete && <DayCleared done={progress.done} />}
 
         {neverWritten && (isFirstRun ? <FirstRun /> : <EmptyDay />)}
@@ -140,9 +145,19 @@ export function TodayView({
             </DragOverlay>
           </DndContext>
         )}
-
-        <Capture day={day} ref={captureRef} />
       </div>
+
+      {/* The syntax lives at the foot of the board and only in the accessibility
+          tree. Sighted users learn it from the live echo beside the field and
+          from the first-run state; a permanent line of instructions under a
+          text input is the kind of chrome that never stops being read once and
+          then ignored forever. `aria-describedby` does not care where this sits,
+          so it is announced on focus wherever it is in the document. */}
+      <p id={CAPTURE_HINT_ID} className="sr-only">
+        Type the task, then press Enter. Optional markers: hash tag to label it, exclamation mark
+        followed by 1, 2 or 3 to set a priority, tilde followed by a duration such as 30m or 2h to
+        estimate it.
+      </p>
 
       <p aria-live="polite" className="sr-only">
         {progress.complete ? `Day cleared. ${progress.done} things done.` : ''}

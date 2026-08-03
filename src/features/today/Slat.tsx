@@ -26,6 +26,9 @@ export function Slat({
   size?: 'sm' | 'md'
 }) {
   const box = size === 'sm' ? 'size-5' : 'size-7'
+  // Completion is the most-tapped control in the app; on a phone its hit area
+  // is padded out to 44px without the slat itself growing.
+  const hit = size === 'sm' ? '-m-1.5 p-1.5' : '-m-2 p-2 sm:-m-1 sm:p-1'
 
   return (
     <button
@@ -33,7 +36,7 @@ export function Slat({
       onClick={onToggle}
       aria-pressed={done}
       aria-label={label}
-      className="group -m-1 shrink-0 p-1"
+      className={`group shrink-0 ${hit}`}
       style={{ perspective: '260px' }}
     >
       <span

@@ -114,6 +114,9 @@ export function WeekChart({ stats, today }: { stats: WeekStats; today: string })
           Read as a table
         </summary>
         <table className="mt-3 w-full text-left text-[0.875rem]">
+          <caption className="sr-only">
+            Tasks done and planned for each day of the week shown in the chart above
+          </caption>
           <thead>
             <tr className="board-label border-b border-rule text-ink-muted">
               <th scope="col" className="py-1.5 font-inherit">

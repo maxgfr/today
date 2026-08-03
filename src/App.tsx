@@ -35,6 +35,26 @@ function Board() {
   const [helpOpen, setHelpOpen] = useState(false)
   const capture = useRef<CaptureHandle>(null)
 
+  /**
+   * Undo is invisible to anyone who cannot see the list redraw, so it says what
+   * it did. The counter is what makes a repeated `⌘Z` announce again: a live
+   * region only speaks when its text actually changes.
+   */
+  const [announcement, setAnnouncement] = useState('')
+  const announce = useCallback((text: string) => {
+    setAnnouncement((previous) => `${text}${previous.endsWith('​') ? '' : '​'}`)
+  }, [])
+
+  const undo = useCallback(() => {
+    dispatch({ type: 'undo' })
+    announce('Undone')
+  }, [dispatch, announce])
+
+  const redo = useCallback(() => {
+    dispatch({ type: 'redo' })
+    announce('Redone')
+  }, [dispatch, announce])
+
   useThemeEffect(state.settings.theme)
 
   const day = route.name === 'today' ? route.day : today
@@ -111,14 +131,14 @@ function Board() {
         label: 'Undo',
         icon: 'undo',
         keys: '⌘Z',
-        run: () => dispatch({ type: 'undo' }),
+        run: undo,
       },
       {
         id: 'redo',
         label: 'Redo',
         icon: 'redo',
         keys: '⇧⌘Z',
-        run: () => dispatch({ type: 'redo' }),
+        run: redo,
       },
       {
         id: 'theme',
@@ -135,7 +155,7 @@ function Board() {
         run: () => setHelpOpen(true),
       },
     ],
-    [day, today, goToDay, dispatch, state.settings.theme],
+    [day, today, goToDay, dispatch, undo, redo, state.settings.theme],
   )
 
   useShortcuts(
@@ -143,8 +163,8 @@ function Board() {
       () => ({
         openPalette: () => setPaletteOpen(true),
         focusCapture: () => capture.current?.focus(),
-        undo: () => dispatch({ type: 'undo' }),
-        redo: () => dispatch({ type: 'redo' }),
+        undo,
+        redo,
         openWeek: () => navigate({ name: 'week', anchor: day }),
         openStats: () => navigate({ name: 'stats' }),
         openSettings: () => navigate({ name: 'settings' }),
@@ -153,7 +173,7 @@ function Board() {
         nextDay: () => goToDay(addDays(day, 1)),
         goToToday: () => goToDay(today),
       }),
-      [day, today, goToDay, dispatch],
+      [day, today, goToDay, undo, redo],
     ),
   )
 
@@ -212,18 +232,8 @@ function Board() {
           </div>
 
           <div className="flex items-center gap-1">
-            <IconButton
-              icon="undo"
-              label="Undo"
-              disabled={!canUndo}
-              onClick={() => dispatch({ type: 'undo' })}
-            />
-            <IconButton
-              icon="redo"
-              label="Redo"
-              disabled={!canRedo}
-              onClick={() => dispatch({ type: 'redo' })}
-            />
+            <IconButton icon="undo" label="Undo" disabled={!canUndo} onClick={undo} />
+            <IconButton icon="redo" label="Redo" disabled={!canRedo} onClick={redo} />
             <span aria-hidden="true" className="mx-1 h-5 w-px bg-rule" />
             <IconButton
               icon="search"
@@ -244,6 +254,10 @@ function Board() {
             <IconButton icon="keyboard" label="Keyboard map" onClick={() => setHelpOpen(true)} />
           </div>
         </nav>
+
+        <p aria-live="polite" className="sr-only">
+          {announcement}
+        </p>
 
         <p className="mt-6 flex items-center gap-2 text-[0.75rem] text-ink-muted">
           <Icon name="shield" size={13} />

@@ -5,6 +5,8 @@ the only way that counts: there is no server to send anything to.
 
 **[maxgfr.github.io/today](https://maxgfr.github.io/today)**
 
+![The day view, light theme](docs/screenshots/today-light.png)
+
 ---
 
 ## What leaves your device
@@ -46,6 +48,13 @@ list. A task belongs to a day or it does not exist.
 - **Keyboard first.** `⌘K` for commands and search, `?` for the full map.
 - **Stats.** Weekly completion, streak, lifetime totals.
 - **Installable.** Add it to your dock or home screen; it works with no connection.
+
+|                                                                                                                       |                                                                                                           |
+| --------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| ![Morning triage of unfinished tasks](docs/screenshots/triage.png)                                                    | ![The week view](docs/screenshots/week.png)                                                               |
+| **Nothing rolls over on its own.** Yesterday's leftovers wait here, with their age, for a decision.                   | **The week is for distributing, not working.** Drag anything onto another day.                            |
+| ![Stats, dark theme](docs/screenshots/stats.png)                                                                      | ![A cleared day](docs/screenshots/cleared.png)                                                            |
+| **Stats, stated flatly.** No encouragement, no guilt — days you planned nothing are skipped, not counted against you. | **The point of the whole thing.** When the last task is done the board clears, and the app stops talking. |
 
 ## Keyboard
 

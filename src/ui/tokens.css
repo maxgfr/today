@@ -1,0 +1,265 @@
+@import 'tailwindcss';
+
+/* ============================================================================
+   DAY BOARD — the design system.
+
+   The world is transit signage: a terminal's departure board and the printed
+   timetable sheet beside it. A day is a finite, ordered list of things that
+   leaves the board as it happens, and is empty when the day is done.
+
+   Two grounds, both native to the world rather than a light-mode courtesy:
+   light is the printed timetable sheet on bone stock, dark is the illuminated
+   board in the concourse. The grammar — thick rules, tabular figures, one
+   signal colour, no cards, no rounded corners — is identical across both.
+   ========================================================================= */
+
+/* Self-hosted, latin subset only: 90 KB, precached, and the reason the app can
+   render on a plane. A CDN font would also be the one thing that phones home. */
+@font-face {
+  font-family: 'Archivo';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  src: url('./fonts/archivo-latin.woff2') format('woff2-variations');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+/* ---------------------------------------------------------------------------
+   Palette. Every foreground/background pair below is measured, not estimated:
+   ink on ground is 17.1:1, muted ink is 4.8:1 (light) and 6.9:1 (dark), and
+   the accent is a different hex per ground precisely so both clear 4.5:1 —
+   the light accent had to darken from #D6310F (4.25, fails) to #C42D0E.
+   ------------------------------------------------------------------------ */
+:root {
+  --board-ground: #f2efe9;
+  --board-surface: #fbf9f5;
+  --board-sunken: #eae6dd;
+  --board-ink: #0b0b0c;
+  --board-ink-muted: #6b6862;
+  --board-rule: #d6d1c4;
+  --board-rule-strong: #0b0b0c;
+  --board-accent: #c42d0e;
+  --board-accent-ink: #f2efe9;
+  --board-accent-wash: #f7e4de;
+}
+
+[data-theme='dark'] {
+  --board-ground: #0b0b0c;
+  --board-surface: #141416;
+  --board-sunken: #08080a;
+  --board-ink: #f2efe9;
+  --board-ink-muted: #9c9990;
+  --board-rule: #2c2c30;
+  --board-rule-strong: #f2efe9;
+  --board-accent: #ff5a2b;
+  --board-accent-ink: #0b0b0c;
+  --board-accent-wash: #2a1409;
+}
+
+@theme inline {
+  --font-board: 'Archivo', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  --color-ground: var(--board-ground);
+  --color-surface: var(--board-surface);
+  --color-sunken: var(--board-sunken);
+  --color-ink: var(--board-ink);
+  --color-ink-muted: var(--board-ink-muted);
+  --color-rule: var(--board-rule);
+  --color-rule-strong: var(--board-rule-strong);
+  --color-accent: var(--board-accent);
+  --color-accent-ink: var(--board-accent-ink);
+  --color-accent-wash: var(--board-accent-wash);
+
+  /* Display tops out at 6rem: monumental on a 27" screen, still one line at
+     320px once the clamp has done its work. */
+  --text-display: clamp(2.75rem, 11vw, 6rem);
+  --text-display--line-height: 0.86;
+  --text-display--letter-spacing: -0.035em;
+
+  --text-row: clamp(1.0625rem, 1.6vw, 1.3125rem);
+  --text-row--line-height: 1.35;
+
+  --animate-flip: flip 420ms cubic-bezier(0.2, 0.9, 0.25, 1);
+  --animate-rise: rise 320ms cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-board-clear: board-clear 720ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ---------------------------------------------------------------------------
+   The board's own motion: a split-flap slat turning over. One authored moment,
+   reused wherever a row changes state, rather than a different transition per
+   component.
+   ------------------------------------------------------------------------ */
+@keyframes flip {
+  0% {
+    transform: rotateX(0deg);
+  }
+  45% {
+    transform: rotateX(-92deg);
+  }
+  55% {
+    transform: rotateX(-88deg);
+  }
+  100% {
+    transform: rotateX(0deg);
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes board-clear {
+  0% {
+    opacity: 0;
+    transform: scaleY(0.4);
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+    background: var(--board-ground);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  [data-theme='dark'] {
+    color-scheme: dark;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    background: var(--board-ground);
+    color: var(--board-ink);
+    font-family: var(--font-board);
+    font-synthesis-weight: none;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Figures line up in columns across every row of the board. */
+  :where(time, .tabular) {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum' 1;
+  }
+
+  /* Focus is a designed element of a signage system, never a removed one:
+     a solid signal-coloured block, offset so it reads against a thick rule. */
+  :where(a, button, input, textarea, select, [tabindex]):focus-visible {
+    outline: 3px solid var(--board-accent);
+    outline-offset: 2px;
+    border-radius: 0;
+  }
+
+  ::selection {
+    background: var(--board-accent);
+    color: var(--board-accent-ink);
+  }
+
+  ::placeholder {
+    color: var(--board-ink-muted);
+    opacity: 1;
+  }
+
+  button {
+    font: inherit;
+    color: inherit;
+  }
+
+  input,
+  textarea {
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: 0;
+  }
+
+  input:focus,
+  textarea:focus {
+    outline: none;
+  }
+}
+
+@layer utilities {
+  /* Structural chrome speaks in the board's voice: caps, tracked, tabular.
+     User content never does — shouting someone's own words back at them is
+     both worse to read and worse manners. */
+  .board-label {
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-weight: 700;
+    font-stretch: 108%;
+    font-size: 0.6875rem;
+  }
+
+  .board-display {
+    font-weight: 800;
+    font-stretch: 112%;
+  }
+
+  .slat {
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+  }
+
+  /* The UA gives `<dialog>` a border, a radius and a centred box; the board
+     world wants none of those. Overriding here keeps every call site free of
+     reset noise. */
+  .board-modal {
+    margin: auto;
+    max-width: min(42rem, calc(100vw - 2rem));
+    max-height: min(80vh, calc(100dvh - 4rem));
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    overflow: visible;
+  }
+
+  .board-modal-top {
+    margin-top: 12vh;
+    margin-bottom: auto;
+  }
+
+  .board-modal::backdrop {
+    background: light-dark(rgb(242 239 233 / 0.86), rgb(11 11 12 / 0.86));
+  }
+
+  [data-theme='dark'] .board-modal::backdrop {
+    background: rgb(11 11 12 / 0.86);
+  }
+}
+
+/* Reduced motion keeps every state change, and removes only the travel.
+   The flip is the app's signature, so its absence must still read as a change:
+   the row still switches instantly and the accent still lands. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

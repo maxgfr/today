@@ -169,90 +169,96 @@ function Board() {
   const dayTaskCount = tasksForDay(state, day).length
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-5 py-10 sm:px-8 sm:py-16">
-      {showTriage && <TriageTray today={today} />}
+    // `my-auto` rather than `justify-center`: a short day sits in the optical
+    // centre of the screen instead of clinging to the top with half the viewport
+    // empty below it, and a long one still scrolls from the top without the
+    // clipping that centred flex children are famous for.
+    <div className="flex min-h-dvh flex-col">
+      <div className="mx-auto my-auto w-full max-w-3xl px-5 py-10 sm:px-8 sm:py-14">
+        {showTriage && <TriageTray today={today} />}
 
-      <FilterBar filters={filters} onChange={setFilters} taskCount={dayTaskCount} />
+        <FilterBar filters={filters} onChange={setFilters} taskCount={dayTaskCount} />
 
-      <TodayView day={day} today={today} filters={filters} captureRef={capture} />
+        <TodayView day={day} today={today} filters={filters} captureRef={capture} />
 
-      {/* Navigation lives under the board, not over it: on this screen the day
+        {/* Navigation lives under the board, not over it: on this screen the day
           is the subject and everything here is a way to leave it. */}
-      <nav
-        aria-label="Elsewhere"
-        className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-rule pt-4"
-      >
-        <div className="flex items-center gap-1">
-          <IconButton
-            icon="chevronLeft"
-            label="Previous day"
-            onClick={() => goToDay(addDays(day, -1))}
-          />
-          {day !== today ? (
-            <button
-              type="button"
-              onClick={() => goToDay(today)}
-              className="board-label px-2 py-2 text-accent underline underline-offset-4 hover:no-underline"
-            >
-              Back to today
-            </button>
-          ) : (
-            <span className="board-label px-2 py-2 text-ink-muted">Today</span>
-          )}
-          <IconButton
-            icon="chevronRight"
-            label="Next day"
-            onClick={() => goToDay(addDays(day, 1))}
-          />
-        </div>
+        <nav
+          aria-label="Elsewhere"
+          className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-rule pt-4"
+        >
+          <div className="flex items-center gap-1">
+            <IconButton
+              icon="chevronLeft"
+              label="Previous day"
+              onClick={() => goToDay(addDays(day, -1))}
+            />
+            {day !== today ? (
+              <button
+                type="button"
+                onClick={() => goToDay(today)}
+                className="board-label px-2 py-2 text-accent underline underline-offset-4 hover:no-underline"
+              >
+                Back to today
+              </button>
+            ) : (
+              <span className="board-label px-2 py-2 text-ink-muted">Today</span>
+            )}
+            <IconButton
+              icon="chevronRight"
+              label="Next day"
+              onClick={() => goToDay(addDays(day, 1))}
+            />
+          </div>
 
-        <div className="flex items-center gap-1">
-          <IconButton
-            icon="undo"
-            label="Undo"
-            disabled={!canUndo}
-            onClick={() => dispatch({ type: 'undo' })}
-          />
-          <IconButton
-            icon="redo"
-            label="Redo"
-            disabled={!canRedo}
-            onClick={() => dispatch({ type: 'redo' })}
-          />
-          <span aria-hidden="true" className="mx-1 h-5 w-px bg-rule" />
-          <IconButton
-            icon="search"
-            label="Commands and search"
-            onClick={() => setPaletteOpen(true)}
-          />
-          <IconButton
-            icon="week"
-            label="Week"
-            onClick={() => navigate({ name: 'week', anchor: day })}
-          />
-          <IconButton icon="stats" label="Stats" onClick={() => navigate({ name: 'stats' })} />
-          <IconButton
-            icon="settings"
-            label="Settings"
-            onClick={() => navigate({ name: 'settings' })}
-          />
-          <IconButton icon="keyboard" label="Keyboard map" onClick={() => setHelpOpen(true)} />
-        </div>
-      </nav>
+          <div className="flex items-center gap-1">
+            <IconButton
+              icon="undo"
+              label="Undo"
+              disabled={!canUndo}
+              onClick={() => dispatch({ type: 'undo' })}
+            />
+            <IconButton
+              icon="redo"
+              label="Redo"
+              disabled={!canRedo}
+              onClick={() => dispatch({ type: 'redo' })}
+            />
+            <span aria-hidden="true" className="mx-1 h-5 w-px bg-rule" />
+            <IconButton
+              icon="search"
+              label="Commands and search"
+              onClick={() => setPaletteOpen(true)}
+            />
+            <IconButton
+              icon="week"
+              label="Week"
+              onClick={() => navigate({ name: 'week', anchor: day })}
+            />
+            <IconButton icon="stats" label="Stats" onClick={() => navigate({ name: 'stats' })} />
+            <IconButton
+              icon="settings"
+              label="Settings"
+              onClick={() => navigate({ name: 'settings' })}
+            />
+            <IconButton icon="keyboard" label="Keyboard map" onClick={() => setHelpOpen(true)} />
+          </div>
+        </nav>
 
-      <p className="mt-6 flex items-center gap-2 text-[0.75rem] text-ink-muted">
-        <Icon name="shield" size={13} />
-        Stored in this browser only. Nothing is sent anywhere.
-      </p>
+        <p className="mt-6 flex items-center gap-2 text-[0.75rem] text-ink-muted">
+          <Icon name="shield" size={13} />
+          Stored in this browser only. Nothing is sent anywhere.
+        </p>
 
-      {paletteOpen && (
-        <CommandPalette
-          commands={commands}
-          onClose={() => setPaletteOpen(false)}
-          onOpenTask={goToDay}
-        />
-      )}
-      {helpOpen && <HelpPanel onClose={() => setHelpOpen(false)} />}
+        {paletteOpen && (
+          <CommandPalette
+            commands={commands}
+            onClose={() => setPaletteOpen(false)}
+            onOpenTask={goToDay}
+          />
+        )}
+        {helpOpen && <HelpPanel onClose={() => setHelpOpen(false)} />}
+      </div>
     </div>
   )
 }

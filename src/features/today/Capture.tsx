@@ -74,7 +74,7 @@ export function Capture({ day, ref }: { day: string; ref?: Ref<CaptureHandle> })
               </span>
             ))}
             {parsed.estimateMin !== null && (
-              <span className="board-label tabular text-ink-muted">
+              <span className="board-quantity text-ink-muted">
                 {formatEstimate(parsed.estimateMin)}
               </span>
             )}

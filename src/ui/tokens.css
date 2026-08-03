@@ -211,6 +211,15 @@
     font-size: 0.6875rem;
   }
 
+  /* Quantities keep the label's weight and tracking but not its capitals:
+     "1H30" reads as a code, "1h30" reads as an hour and a half. */
+  .board-quantity {
+    letter-spacing: 0.06em;
+    font-weight: 700;
+    font-size: 0.6875rem;
+    font-variant-numeric: tabular-nums;
+  }
+
   .board-display {
     font-weight: 800;
     font-stretch: 112%;

@@ -1,6 +1,6 @@
 # Today
 
-**Your day, one list.** A to-do app for what you are doing *today* — offline-first, and private in
+**Your day, one list.** A to-do app for what you are doing _today_ — offline-first, and private in
 the only way that counts: there is no server to send anything to.
 
 **[maxgfr.github.io/today](https://maxgfr.github.io/today)**
@@ -49,18 +49,18 @@ list. A task belongs to a day or it does not exist.
 
 ## Keyboard
 
-| Key | Does |
-| --- | --- |
-| `N` | Write a new task |
-| `⌘K` or `/` | Commands and search |
-| `⌘Z` / `⇧⌘Z` | Undo, redo |
-| `W` | Week |
-| `S` | Stats |
-| `,` | Settings |
-| `[` `]` | Previous day, next day |
-| `T` | Back to today |
-| `?` | The full map |
-| `Esc` | Close whatever is open |
+| Key          | Does                   |
+| ------------ | ---------------------- |
+| `N`          | Write a new task       |
+| `⌘K` or `/`  | Commands and search    |
+| `⌘Z` / `⇧⌘Z` | Undo, redo             |
+| `W`          | Week                   |
+| `S`          | Stats                  |
+| `,`          | Settings               |
+| `[` `]`      | Previous day, next day |
+| `T`          | Back to today          |
+| `?`          | The full map           |
+| `Esc`        | Close whatever is open |
 
 Inside a task row: `X` completes it, `1`–`3` set priority, `0` clears it, `⌫` deletes it. To reorder
 without a mouse, tab to a row's handle, press Space to pick it up, move with the arrow keys, Space

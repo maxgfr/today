@@ -53,7 +53,7 @@ export function TriageTray({ today }: { today: string }) {
             onClick={() => dispatch({ type: 'dismissTriage', today })}
             className="board-label underline underline-offset-4 hover:no-underline"
           >
-            Later
+            Not now
           </button>
         </div>
       </header>
@@ -64,7 +64,7 @@ export function TriageTray({ today }: { today: string }) {
             key={task.id}
             className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-rule px-4 py-3 last:border-b-0"
           >
-            <span className="board-label tabular w-10 shrink-0 text-accent">
+            <span className="board-quantity w-10 shrink-0 text-accent">
               {ageLabel(task.carriedFrom ?? task.day, today)}
             </span>
 

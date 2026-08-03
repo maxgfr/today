@@ -36,7 +36,7 @@ export function DayHeader({ day, progress }: { day: string; progress: DayProgres
       </div>
 
       {progress.total > 0 && (
-        <p className="board-label tabular shrink-0 pb-1 text-ink-muted">
+        <p className="board-quantity shrink-0 pb-1 text-ink-muted">
           <span className={progress.complete ? 'text-accent' : 'text-ink'}>{progress.done}</span>
           <span aria-hidden="true"> / {progress.total}</span>
           <span className="sr-only">

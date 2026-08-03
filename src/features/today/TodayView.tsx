@@ -52,6 +52,17 @@ export function TodayView({
   )
   const progress = useMemo(() => dayProgress(state, day), [state, day])
 
+  // Numbering runs over the open rows only, so completing one closes the gap
+  // instead of leaving a hole where a task used to be.
+  const positions = useMemo(() => {
+    const map = new Map<string, number>()
+    let next = 1
+    for (const task of visible) {
+      if (task.status !== 'done') map.set(task.id, next++)
+    }
+    return map
+  }, [visible])
+
   const sensors = useSensors(
     // A few pixels of slop so a click on a row never registers as a drag.
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -104,8 +115,13 @@ export function TodayView({
               strategy={verticalListSortingStrategy}
             >
               <ul>
-                {visible.map((task, index) => (
-                  <TaskRow key={task.id} task={task} index={index} today={today} />
+                {visible.map((task) => (
+                  <TaskRow
+                    key={task.id}
+                    task={task}
+                    position={positions.get(task.id) ?? 0}
+                    today={today}
+                  />
                 ))}
               </ul>
             </SortableContext>
@@ -116,7 +132,7 @@ export function TodayView({
                   <TaskRow
                     isDragging
                     task={state.tasks[dragging]!}
-                    index={visible.findIndex((task) => task.id === dragging)}
+                    position={positions.get(dragging) ?? 0}
                     today={today}
                   />
                 </ul>

@@ -118,7 +118,7 @@ function DayColumn({ day, today }: { day: string; today: string }) {
       </div>
 
       {progress.total > 0 && (
-        <p className="board-label tabular px-2 pt-1.5 text-ink-muted">
+        <p className="board-quantity px-2 pt-1.5 text-ink-muted">
           {progress.done}/{progress.total}
         </p>
       )}

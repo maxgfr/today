@@ -15,7 +15,9 @@ import { TaskDetail } from './TaskDetail'
  *
  * The row number is not decoration: it is the position the user set by
  * dragging, it renumbers live as the day is rearranged, and a completed row
- * loses it and shows a rule instead — the service has left the board.
+ * loses it and shows a rule instead — the service has left the board. Numbering
+ * counts only what is still open, so finishing 04 leaves 05 renumbered to 04
+ * rather than opening a gap that reads like a missing task.
  *
  * Title editing happens in place. A double-click, Enter, or a click on the
  * title swaps the text for an input pre-filled with the quick-capture syntax
@@ -23,12 +25,13 @@ import { TaskDetail } from './TaskDetail'
  */
 export function TaskRow({
   task,
-  index,
+  position,
   today,
   isDragging: dragOverlay = false,
 }: {
   task: Task
-  index: number
+  /** 1-based position among the day's *open* rows; ignored once done. */
+  position: number
   today: string
   isDragging?: boolean
 }) {
@@ -99,55 +102,65 @@ export function TaskRow({
         isDragging ? 'opacity-30' : ''
       } ${dragOverlay ? 'border-2 border-accent shadow-[0_8px_24px_rgba(0,0,0,0.18)]' : ''}`}
     >
-      <div className="flex items-center gap-3 px-3 py-3 sm:gap-4 sm:px-4" onKeyDown={onKeyDown}>
+      <div
+        className="flex items-start gap-3 px-3 py-3 sm:items-center sm:gap-4 sm:px-4"
+        onKeyDown={onKeyDown}
+      >
         <span
           aria-hidden="true"
-          className={`board-label tabular w-6 shrink-0 text-right ${
+          className={`board-label tabular w-6 shrink-0 pt-1.5 text-right sm:pt-0 ${
             done ? 'text-rule' : 'text-ink-muted'
           }`}
         >
-          {done ? '—' : String(index + 1).padStart(2, '0')}
+          {done ? '—' : String(position).padStart(2, '0')}
         </span>
 
-        <Slat
-          done={done}
-          label={done ? `Reopen ${task.title}` : `Complete ${task.title}`}
-          onToggle={() =>
-            dispatch({ type: 'toggleTask', id: task.id, now: new Date().toISOString() })
-          }
-        />
-
-        {editing ? (
-          <input
-            autoFocus
-            value={draft}
-            onChange={(event) => setDraft(event.target.value)}
-            onBlur={commit}
-            onKeyDown={(event) => {
-              if (event.key === 'Enter') {
-                event.preventDefault()
-                commit()
-              } else if (event.key === 'Escape') {
-                event.preventDefault()
-                setEditing(false)
-              }
-            }}
-            aria-label={`Edit ${task.title}`}
-            className="min-w-0 flex-1 border-b-2 border-accent py-0.5 text-row"
+        <div className="pt-0.5 sm:pt-0">
+          <Slat
+            done={done}
+            label={done ? `Reopen ${task.title}` : `Complete ${task.title}`}
+            onToggle={() =>
+              dispatch({ type: 'toggleTask', id: task.id, now: new Date().toISOString() })
+            }
           />
-        ) : (
-          <button
-            type="button"
-            onClick={startEditing}
-            className={`min-w-0 flex-1 truncate text-left text-row transition-colors ${
-              done ? 'text-ink-muted line-through decoration-accent decoration-2' : 'text-ink'
-            }`}
-          >
-            {task.title}
-          </button>
-        )}
+        </div>
 
-        {!editing && <TaskMeta task={task} today={today} />}
+        {/* On a phone the metadata drops under the title instead of competing
+            with it for width. Truncating someone's task down to "F.." to make
+            room for a tag is the wrong trade in every case. */}
+        <div className="flex min-w-0 flex-1 flex-col gap-1 sm:flex-row sm:items-center sm:gap-4">
+          {editing ? (
+            <input
+              autoFocus
+              value={draft}
+              onChange={(event) => setDraft(event.target.value)}
+              onBlur={commit}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') {
+                  event.preventDefault()
+                  commit()
+                } else if (event.key === 'Escape') {
+                  event.preventDefault()
+                  setEditing(false)
+                }
+              }}
+              aria-label={`Edit ${task.title}`}
+              className="min-w-0 flex-1 border-b-2 border-accent py-0.5 text-row"
+            />
+          ) : (
+            <button
+              type="button"
+              onClick={startEditing}
+              className={`min-w-0 flex-1 text-left text-row transition-colors sm:truncate ${
+                done ? 'text-ink-muted line-through decoration-accent decoration-2' : 'text-ink'
+              }`}
+            >
+              {task.title}
+            </button>
+          )}
+
+          {!editing && <TaskMeta task={task} today={today} />}
+        </div>
 
         <div className="flex shrink-0 items-center">
           <IconButton

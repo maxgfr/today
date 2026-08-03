@@ -39,7 +39,7 @@ export function TaskMeta({ task, today }: { task: Task; today: string }) {
     <div className="flex shrink-0 items-center gap-2.5">
       {age !== null && age !== '0d' && (
         <span
-          className="board-label tabular text-accent"
+          className="board-quantity text-accent"
           title={`Carried over from ${task.carriedFrom}`}
         >
           {age}
@@ -53,9 +53,7 @@ export function TaskMeta({ task, today }: { task: Task; today: string }) {
       ))}
 
       {task.estimateMin !== null && (
-        <span className="board-label tabular text-ink-muted">
-          {formatEstimate(task.estimateMin)}
-        </span>
+        <span className="board-quantity text-ink-muted">{formatEstimate(task.estimateMin)}</span>
       )}
 
       {task.seriesId !== null && (
@@ -66,7 +64,7 @@ export function TaskMeta({ task, today }: { task: Task; today: string }) {
 
       {task.subtasks.length > 0 && (
         <span
-          className="board-label tabular text-ink-muted"
+          className="board-quantity text-ink-muted"
           title={`${openSubtasks} of ${task.subtasks.length} steps left`}
         >
           {task.subtasks.length - openSubtasks}/{task.subtasks.length}

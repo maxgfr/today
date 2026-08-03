@@ -110,9 +110,21 @@ describe('migrate — repairing', () => {
   })
 
   it('reads tasks as a record or as an array', () => {
-    const asRecord = migrate({ version: 1, tasks: { a: { id: 'a', title: 'X', day: MONDAY } } })
-    const asArray = migrate({ version: 1, tasks: [{ id: 'a', title: 'X', day: MONDAY }] })
+    const asRecord = migrate(
+      { version: 1, tasks: { a: { id: 'a', title: 'X', day: MONDAY } } },
+      NOW,
+    )
+    const asArray = migrate({ version: 1, tasks: [{ id: 'a', title: 'X', day: MONDAY }] }, NOW)
     expect(asRecord!.tasks).toEqual(asArray!.tasks)
+  })
+
+  it('invents the same timestamp twice for the same input', () => {
+    // Repairing a blob is a pure function of the blob and the clock it is
+    // given; reaching for the wall clock inside made this test flaky in CI.
+    const once = migrate({ version: 1, tasks: [{ title: 'No timestamp', day: MONDAY }] }, NOW)
+    const twice = migrate({ version: 1, tasks: [{ title: 'No timestamp', day: MONDAY }] }, NOW)
+    expect(Object.values(once!.tasks)[0]!.createdAt).toBe(NOW)
+    expect(Object.values(twice!.tasks)[0]!.createdAt).toBe(NOW)
   })
 
   it('discards a recurrence rule it does not understand', () => {

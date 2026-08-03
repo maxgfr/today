@@ -9,6 +9,11 @@
  * refusing the whole file because a single field is the wrong type would mean
  * losing a year of someone's history to a typo. Only a blob that is not
  * recognisably this app's data returns `null`.
+ *
+ * `now` is a parameter rather than a call to the clock inside, so that repairing
+ * the same blob twice produces the same result. Without it, two migrations a
+ * millisecond apart disagree on the `createdAt` they invent for a record that
+ * lost one — which is a flaky test today and an unexplainable diff later.
  */
 
 import { isValidDayId } from '../lib/date'
@@ -73,7 +78,7 @@ function subtasks(value: unknown): Subtask[] {
 }
 
 /** Returns `null` for anything that cannot be repaired into a usable task. */
-function task(value: unknown): Task | null {
+function task(value: unknown, now: string): Task | null {
   if (!isObject(value)) return null
 
   const title = str(value.title).trim()
@@ -93,7 +98,7 @@ function task(value: unknown): Task | null {
     tags: tags(value.tags),
     subtasks: subtasks(value.subtasks),
     estimateMin: nullableNum(value.estimateMin),
-    createdAt: isoOrNull(value.createdAt) ?? new Date().toISOString(),
+    createdAt: isoOrNull(value.createdAt) ?? now,
     completedAt: isoOrNull(value.completedAt),
     carriedFrom: dayOrNull(value.carriedFrom),
     seriesId: typeof value.seriesId === 'string' ? value.seriesId : null,
@@ -122,7 +127,7 @@ function rule(value: unknown): RecurrenceRule | null {
   }
 }
 
-function template(value: unknown): RecurringTemplate | null {
+function template(value: unknown, now: string): RecurringTemplate | null {
   if (!isObject(value)) return null
 
   const title = str(value.title).trim()
@@ -138,7 +143,7 @@ function template(value: unknown): RecurringTemplate | null {
     rule: parsedRule,
     startDay,
     active: bool(value.active, true),
-    createdAt: isoOrNull(value.createdAt) ?? new Date().toISOString(),
+    createdAt: isoOrNull(value.createdAt) ?? now,
   }
 }
 
@@ -163,7 +168,7 @@ function collect<T extends { id: string }>(value: unknown, parse: (raw: unknown)
  * what lets the importer say "that is not a Today export" instead of silently
  * replacing someone's tasks with an empty list.
  */
-export function migrate(input: unknown): AppState | null {
+export function migrate(input: unknown, now: string = new Date().toISOString()): AppState | null {
   if (!isObject(input)) return null
 
   const looksLikeOurs =
@@ -179,8 +184,8 @@ export function migrate(input: unknown): AppState | null {
 
   return {
     version: CURRENT_VERSION,
-    tasks: collect(input.tasks, task),
-    templates: collect(input.templates, template),
+    tasks: collect(input.tasks, (raw) => task(raw, now)),
+    templates: collect(input.templates, (raw) => template(raw, now)),
     settings: {
       theme: theme(settings.theme),
       lastTriagedDay: dayOrNull(settings.lastTriagedDay),

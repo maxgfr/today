@@ -7,6 +7,8 @@ the only way that counts: there is no server to send anything to.
 
 ![The day view, light theme](docs/screenshots/today-light.png)
 
+Run it from a conversation too — `npx skills add maxgfr/today` ([details](#manage-it-from-claude)).
+
 ---
 
 ## What leaves your device
@@ -124,24 +126,35 @@ no router — the app is small enough that each of those would cost more than it
 
 Design decisions live in [`PRODUCT.md`](PRODUCT.md) and [`DESIGN.md`](DESIGN.md).
 
-## Licence
-
-MIT. The font is [Archivo](https://github.com/Omnibus-Type/Archivo) by Omnibus-Type, under the SIL
-Open Font License — vendored into `src/ui/fonts/` rather than loaded from a CDN, because a CDN font
-is a request to somebody else's server.
-
 ## Manage it from Claude
 
-The repo ships an agent skill in [`skills/today/`](skills/today) that reads and writes a list from the
-terminal — "what is on today", "add X", "mark X done", "what did I not finish".
+The repo ships a [skills.sh](https://skills.sh) agent skill, so you can run your day from a
+conversation — _"what's on today"_, _"add X"_, _"mark X done"_, _"what did I not finish"_.
 
-The app keeps its data in the browser, which no CLI can reach, so the skill works on the export file:
-**Settings → Export JSON**, edit, **Settings → Import JSON**.
+```
+npx skills add maxgfr/today
+```
+
+The app keeps its data in the browser's IndexedDB, which nothing outside that browser can reach —
+that is the whole point of it. So the skill works on the **export file**: **Settings → Export JSON**,
+work in the conversation, **Settings → Import JSON**. Import replaces the app's data with the file,
+so export again before editing if you have been adding tasks in the browser.
+
+It is also a plain CLI, with no dependencies and nothing to install:
 
 ```bash
 node skills/today/scripts/today.mjs list
 node skills/today/scripts/today.mjs add "Call the bank #admin !1 ~20m"
 node skills/today/scripts/today.mjs carried
+node skills/today/scripts/today.mjs carry "signed form" tomorrow
 ```
 
-Install it for Claude Code by copying `skills/today` into `~/.claude/skills/`.
+The file is `~/.today/today.json` unless `$TODAY_FILE` or `--file` says otherwise. It keeps the two
+rules the app is built on: nothing is ever carried forward on its own, and every task belongs to a
+day.
+
+## Licence
+
+MIT. The font is [Archivo](https://github.com/Omnibus-Type/Archivo) by Omnibus-Type, under the SIL
+Open Font License — vendored into `src/ui/fonts/` rather than loaded from a CDN, because a CDN font
+is a request to somebody else's server.

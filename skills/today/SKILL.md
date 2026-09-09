@@ -1,6 +1,9 @@
 ---
 name: today
-description: Use when the user wants to read or change their daily to-do list from the conversation — "what's on today", "add X to my list", "mark X done", "what did I not finish", "move X to tomorrow", "how's my week", "my streak". Works on the Today app's export file (github.com/maxgfr/today), so it also covers "export/import my tasks", "carry over yesterday's leftovers", and planning a day out loud. Not for editing the app's source code.
+description: Manage daily tasks, completion, carryover, planning, and imports or exports in the Today app.
+disable-model-invocation: true
+metadata:
+  opencode/autoinvoke: 'false'
 ---
 
 # today

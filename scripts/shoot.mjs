@@ -179,6 +179,9 @@ const shots = [
   },
 ]
 
+// Keep one capture context active at a time to bound browser memory use and
+// print progress in the same order as the shot list.
+// eslint-disable-next-line no-await-in-loop
 for (const shot of shots) await shoot(browser, shot)
 
 await browser.close()

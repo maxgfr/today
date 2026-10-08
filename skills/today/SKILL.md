@@ -1,9 +1,8 @@
 ---
 name: today
-description: Manage daily tasks, completion, carryover, planning, and imports or exports in the Today app.
-disable-model-invocation: true
+description: Manage daily tasks, completion, carryover, planning, and imports or exports in the Today app. Use only when the user explicitly asks for today or to manage their Today task list.
 metadata:
-  opencode/autoinvoke: 'false'
+  opencode/autoinvoke: 'true'
 ---
 
 # today

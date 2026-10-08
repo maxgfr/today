@@ -162,11 +162,21 @@ MIT. The font is [Archivo](https://github.com/Omnibus-Type/Archivo) by Omnibus-T
 Open Font License — vendored into `src/ui/fonts/` rather than loaded from a CDN, because a CDN font
 is a request to somebody else's server.
 
-## Manual skill invocation
+## Skill invocation on request
 
-These skills run when explicitly invoked: `today`. Use `$name` in Codex or `/name` in Claude Code and OpenCode (with the plugin namespace when installed as a Claude plugin).
+The `today` skill is model-invocable, but its description restricts it to explicit requests: the agent calls it when you ask for it, not on its own. Ask for it in plain words, or use `$today` in Codex or `/today` in Claude Code and OpenCode (with the plugin namespace when installed as a Claude plugin).
 
-The skill bundle disables implicit selection in Codex and Claude Code. OpenCode V2 reads `metadata.opencode/autoinvoke: "false"`. For OpenCode V1, merge these entries into `permission.skill` in `~/.config/opencode/opencode.json` or the project configuration; retain unrelated permissions:
+You keep the switch on every host:
+
+| Host        | Shipped, on request                                                       | Explicit-only                        |
+| ----------- | ------------------------------------------------------------------------- | ------------------------------------ |
+| Claude Code | no `disable-model-invocation` in `SKILL.md`                               | add `disable-model-invocation: true` |
+| Codex       | `allow_implicit_invocation: true` under `policy:` in `agents/openai.yaml` | set it to `false`                    |
+| OpenCode    | `metadata.opencode/autoinvoke: 'true'` in `SKILL.md`                      | set it to `'false'`                  |
+
+Claude Code can do it without touching the file: `"skillOverrides": { "today": "user-invocable-only" }` in `settings.json` leaves `/today` working while hiding the skill from the model. Plugin installs ignore `skillOverrides`, so edit the frontmatter there. Updating or reinstalling restores the shipped default, so reapply the change afterwards.
+
+OpenCode V1 reads no `autoinvoke` metadata; `permission.skill` in `~/.config/opencode/opencode.json` or the project configuration is how you force explicit-only there. Retain unrelated permissions:
 
 ```json
 {
@@ -178,4 +188,4 @@ The skill bundle disables implicit selection in Codex and Claude Code. OpenCode 
 }
 ```
 
-On OpenCode 1.18.30, these rules hide the skills from the agent and reject skill-tool loading, while explicit `/name` commands remain available. Installation with `skills add` does not apply this OpenCode V1 configuration.
+On OpenCode 1.18.30 that rule hides the skill from the agent and rejects skill-tool loading, while the explicit `/today` command still works. Installation with `skills add` does not write this OpenCode V1 configuration.

@@ -7,7 +7,7 @@ the only way that counts: there is no server to send anything to.
 
 ![The day view, light theme](docs/screenshots/today-light.png)
 
-Run it from a conversation too — `npx skills add maxgfr/today` ([details](#manage-it-from-claude)).
+Run it from a conversation too — `npx skills add maxgfr/today` ([details](#manage-it-from-an-agent)).
 
 ---
 
@@ -129,7 +129,7 @@ no router — the app is small enough that each of those would cost more than it
 
 Design decisions live in [`PRODUCT.md`](PRODUCT.md) and [`DESIGN.md`](DESIGN.md).
 
-## Manage it from Claude
+## Manage it from an agent
 
 The repo ships a [skills.sh](https://skills.sh) agent skill, so you can run your day from a
 conversation — _"what's on today"_, _"add X"_, _"mark X done"_, _"what did I not finish"_.
@@ -166,7 +166,7 @@ is a request to somebody else's server.
 
 The `today` skill is model-invocable, but its description restricts it to explicit requests: the agent calls it when you ask for it, not on its own. Ask for it in plain words, or use `$today` in Codex or `/today` in Claude Code and OpenCode (with the plugin namespace when installed as a Claude plugin).
 
-You keep the switch on every host:
+You keep the switch in the frontmatter of the installed `SKILL.md`:
 
 | Host                  | Shipped, on request                         | Explicit-only                        |
 | --------------------- | ------------------------------------------- | ------------------------------------ |

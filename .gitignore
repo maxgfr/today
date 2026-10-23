@@ -28,3 +28,8 @@ dev-dist
 
 # Design skill artifacts kept, screenshots not
 .impeccable/screenshots
+
+# skills installed by `npx skills add`
+.agents/skills/
+.claude/skills/
+skills-lock.json

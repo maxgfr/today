@@ -164,7 +164,7 @@ is a request to somebody else's server.
 
 ## Skill invocation on request
 
-The `today` skill is model-invocable, but its description restricts it to explicit requests: the agent calls it when you ask for it, not on its own. Ask for it in plain words, or use `$today` in Codex or `/today` in Claude Code and OpenCode (with the plugin namespace when installed as a Claude plugin).
+The `today` skill is model-invocable, but its description restricts it to explicit requests: the agent calls it when you ask for it, not on its own. Ask for it in plain words, or use `$today` in Codex or `/today` in Claude Code and OpenCode.
 
 You keep the switch in the frontmatter of the installed `SKILL.md`:
 
@@ -172,4 +172,4 @@ You keep the switch in the frontmatter of the installed `SKILL.md`:
 | --------------------- | ------------------------------------------- | ------------------------------------ |
 | Claude Code, OpenCode | no `disable-model-invocation` in `SKILL.md` | add `disable-model-invocation: true` |
 
-Claude Code can do it without touching the file: `"skillOverrides": { "today": "user-invocable-only" }` in `settings.json` leaves `/today` working while hiding the skill from the model. Plugin installs ignore `skillOverrides`, so edit the frontmatter there. Updating or reinstalling restores the shipped default, so reapply the change afterwards.
+Claude Code can do it without touching the file: `"skillOverrides": { "today": "user-invocable-only" }` in `settings.json` leaves `/today` working while hiding the skill from the model. Updating or reinstalling restores the shipped default, so reapply the change afterwards.

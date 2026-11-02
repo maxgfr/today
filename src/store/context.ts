@@ -11,6 +11,8 @@ export type StoreValue = {
   canRedo: boolean
   /** False when the browser gave us no durable storage — surfaced in the UI. */
   persisted: boolean
+  /** True while the last write was refused (storage full) — surfaced in the UI. */
+  saveFailed: boolean
 }
 
 /**

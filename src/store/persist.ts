@@ -44,7 +44,7 @@ export async function loadState(): Promise<LoadResult> {
  * Returns `flush` so callers can force a write at moments where losing the last
  * 250 ms would be visible — closing the tab, exporting a file.
  */
-export function createWriter(onError?: (error: unknown) => void) {
+export function createWriter(onError?: (error: unknown) => void, onSaved?: () => void) {
   let timer: ReturnType<typeof setTimeout> | undefined
   let pending: AppState | null = null
   let inFlight: Promise<void> = Promise.resolve()
@@ -56,6 +56,7 @@ export function createWriter(onError?: (error: unknown) => void) {
 
     try {
       await idbSet(KEY, state)
+      onSaved?.()
     } catch (error) {
       onError?.(error)
     }

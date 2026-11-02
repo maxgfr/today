@@ -44,9 +44,12 @@ async function transact<T>(
     const tx = db.transaction(STORE, mode)
     const request = run(tx.objectStore(STORE))
 
-    request.onsuccess = () => resolve(request.result)
+    // A write is only stored once its transaction commits: a full quota (this
+    // origin, maxgfr.github.io, is shared by many apps) aborts it after the
+    // request itself has already succeeded.
+    tx.oncomplete = () => resolve(request.result)
     request.onerror = () => reject(request.error)
-    tx.onabort = () => reject(tx.error)
+    tx.onabort = () => reject(tx.error ?? request.error)
   })
 }
 

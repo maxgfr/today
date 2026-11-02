@@ -24,7 +24,7 @@ import { Icon } from './ui/Icon'
 function Board() {
   const state = useAppState()
   const dispatch = useDispatch()
-  const { status, canUndo, canRedo } = useStore()
+  const { status, canUndo, canRedo, saveFailed } = useStore()
 
   const today = useToday()
   const route = useRoute()
@@ -193,6 +193,21 @@ function Board() {
     // clipping that centred flex children are famous for.
     <div className="flex min-h-dvh flex-col">
       <div className="mx-auto my-auto w-full max-w-3xl px-5 py-10 sm:px-8 sm:py-14">
+        {saveFailed && (
+          <p
+            role="alert"
+            className="mb-6 flex items-start gap-2.5 border-2 border-accent px-4 py-3 text-[0.9375rem]"
+          >
+            <span className="mt-0.5 shrink-0 text-accent">
+              <Icon name="offline" size={16} />
+            </span>
+            <span>
+              Storage for this site is full, so your latest changes will be lost on reload. Export
+              JSON from Settings to keep them.
+            </span>
+          </p>
+        )}
+
         {showTriage && <TriageTray today={today} />}
 
         <TodayView

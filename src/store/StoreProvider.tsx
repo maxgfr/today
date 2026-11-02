@@ -19,8 +19,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [history, rawDispatch] = useReducer(reduce, emptyState(), initHistory)
   const [status, setStatus] = useState<StoreStatus>('loading')
   const [persisted, setPersisted] = useState(true)
+  const [saveFailed, setSaveFailed] = useState(false)
 
-  const writer = useRef(createWriter()).current
+  const writer = useRef(
+    createWriter(
+      () => setSaveFailed(true),
+      () => setSaveFailed(false),
+    ),
+  ).current
   const hydrated = useRef(false)
 
   // Boot: read once, then hand control to the reducer.
@@ -70,8 +76,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       canUndo: canUndo(history),
       canRedo: canRedo(history),
       persisted,
+      saveFailed,
     }),
-    [history, status, persisted],
+    [history, status, persisted, saveFailed],
   )
 
   return (
